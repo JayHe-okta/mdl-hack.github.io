@@ -5,12 +5,6 @@
     <script>
         async function invokeWallet() {
             try {
-                // Fetch the payload from the Flask app
-                const response = await fetch('/get-request');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch wallet request payload');
-                }
-
                 const payload = {
                         "protocol": "preview",
                         "request": {
