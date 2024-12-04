@@ -1,38 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quick Website</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f4f4f4;
+    <title>Invoke Wallet</title>
+    <script>
+        async function invokeWallet() {
+            try {
+                // Fetch the payload from the Flask app
+                const response = await fetch('/get-request');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch wallet request payload');
+                }
+
+                const payload = {
+                        "protocol": "preview",
+                        "request": {
+                            "selector": {
+                                "format": ["mdoc"],
+                                "doctype": "org.iso.18013.5.1.mDL",
+                                "fields": [
+                                    {"namespace": "org.iso.18013.5.1", "name": "family_name", "intentToRetain": False},
+                                    {"namespace": "org.iso.18013.5.1", "name": "given_name", "intentToRetain": False},
+                                    {"namespace": "org.iso.18013.5.1", "name": "age_over_21", "intentToRetain": False}
+                                ]
+                            },
+                            "nonce": "R3kjldEu4cWYiUcQeqqmZH502Vl9pob_v99jdNjuTJE=",
+                            "readerPublicKey": "BJulzAA82EZt372Z1LUnfBsKaMq0xlRGnFAmPUe0MQLmwyph_vbyPgpP8_QUuTTAO4H49T8HkzSrEdvMP1JpFV4="
+                        }
+                    }
+
+                // Invoke navigator.credentials.get
+                const { data: mdlData } = await navigator.credentials.get({
+                    digital: {
+                        providers: [{
+                            protocol: payload.protocol,
+                            request: payload.request
+                        }]
+                    }
+                });
+
+                console.log('Wallet Invoked, Data Retrieved:', mdlData);
+
+                // Display the retrieved data
+                document.getElementById('output').textContent = JSON.stringify(mdlData, null, 2);
+            } catch (error) {
+                console.error('Error invoking wallet:', error);
+                document.getElementById('output').textContent = 'Error: ' + error.message;
+            }
         }
-        h1 {
-            color: #333;
-        }
-        footer {
-            position: absolute;
-            bottom: 10px;
-            font-size: 12px;
-            color: #aaa;
-        }
-    </style>
+    </script>
 </head>
 <body>
-    <div>
-        <h1>Welcome to My Quick Website!</h1>
-        <p>This is a simple site deployed on GitHub Pages.</p>
-    </div>
-    <footer>
-        &copy; 2024 Your Name. All rights reserved.
-    </footer>
+    <h1>Invoke Wallet</h1>
+    <button onclick="invokeWallet()">Invoke Wallet</button>
+    <pre id="output"></pre>
 </body>
 </html>
